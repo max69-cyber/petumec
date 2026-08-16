@@ -10,11 +10,26 @@
     "frontendDist": "../dist"
   },
   "app": {
+    "macOSPrivateApi": true,
     "windows": [
       {
+        "label": "pet-overlay",
         "title": "petumec",
-        "width": 800,
-        "height": 600
+        "width": 128,
+        "height": 128,
+        "transparent": true,
+        "decorations": true,
+        "titleBarStyle": "Overlay",
+        "hiddenTitle": true,
+        "acceptFirstMouse": true,
+        "alwaysOnTop": true,
+        "visibleOnAllWorkspaces": true,
+        "shadow": false,
+        "focus": false,
+        "resizable": false,
+        "closable": false,
+        "minimizable": false,
+        "maximizable": false
       }
     ],
     "security": {

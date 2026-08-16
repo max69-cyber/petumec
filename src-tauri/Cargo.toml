@@ -18,8 +18,30 @@ crate-type = ["staticlib", "cdylib", "rlib"]
 tauri-build = { version = "2", features = [] }
 
 [dependencies]
-tauri = { version = "2", features = [] }
+# прозрачность окна на macos работает только с macos-private-api
+tauri = { version = "2", features = ["macos-private-api"] }
 tauri-plugin-opener = "2"
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
+
+# зависимости только для macos
+[target.'cfg(target_os = "macos")'.dependencies]
+objc2 = "0.6"
+# импортируем из appkit (UI-фреймворк от Apple) классы:
+#   - NSWindow: оболочка окна на экране, не рендерит, а взаимодействует с WindowServer,
+#      обрабатывает оконные события по типу ресайза или фуллскрина
+#   - NSPanel: это подкласс NSWindow, нужен для второстепенных окон приложения,
+#      обладает специфичными свойствами, например позиция в спейсе с полноэкранным приложением
+#      и отсутствие фокуса как отдельное приложение в нашем кейсе
+#   - NSResponder: отвечает за обработку пользовательских событий, клики, клавиши клавиатуры и т.п.
+#
+# иерархия классов:
+#   до NSPanel: NSObject -> NSResponder -> NSWindow -> NSPanel
+#
+# NSObject: корневой класс в иерархии appkit, владеет методами работы с классами
+#
+# каждый класс в цепочке наследования нужно включать отдельной фичей, чтобы он работал
+# (кроме NSObject — он не из objc2-app-kit, а из базового objc2, доступен всегда),
+# поэтому включаем в импорт всю цепочку, кроме NSObject
+objc2-app-kit = { version = "0.3", features = ["NSWindow", "NSPanel", "NSResponder"] }
 
