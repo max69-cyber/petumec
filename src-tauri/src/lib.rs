@@ -142,7 +142,9 @@ fn make_tray(app: &tauri::AppHandle) -> tauri::Result<()> {
 pub fn run() {
     tauri::Builder::default()
         .setup(|app| {
-            let window = app.get_webview_window("pet-overlay").unwrap();
+            let window = app
+                .get_webview_window("pet-overlay")
+                .ok_or("window with pet-overlay identifier is not found")?;
 
             #[cfg(target_os = "macos")]
             make_pet_overlay(&window);
