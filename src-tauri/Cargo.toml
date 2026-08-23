@@ -19,7 +19,9 @@ tauri-build = { version = "2", features = [] }
 
 [dependencies]
 # прозрачность окна на macos работает только с macos-private-api
-tauri = { version = "2", features = ["macos-private-api"] }
+# tray-icon включает фичу иконки в менюбаре
+# image-png для загрузки png-картинки
+tauri = { version = "2", features = ["macos-private-api", "tray-icon", "image-png"] }
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 
@@ -43,4 +45,3 @@ objc2 = "0.6"
 # (кроме NSObject — он не из objc2-app-kit, а из базового objc2, доступен всегда),
 # поэтому включаем в импорт всю цепочку, кроме NSObject
 objc2-app-kit = { version = "0.3", features = ["NSWindow", "NSPanel", "NSResponder"] }
-

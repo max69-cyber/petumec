@@ -93,6 +93,51 @@ fn make_pet_overlay(window: &tauri::WebviewWindow) {
     });
 }
 
+// отвечает за иконку в менюбаре + выпадающее из нее меню
+// Result пустой, потому что в крейте tauri зашили внутрь Err уже значение
+fn make_tray(app: &tauri::AppHandle) -> tauri::Result<()> {
+    use tauri::image::Image;
+    use tauri::menu::{Menu, MenuItem};
+    use tauri::tray::TrayIconBuilder;
+
+    // создаем айтемы для меню:
+    // аргументы: apphandle, айди айтема, лейбл айтема, флаг включенности, хоткей для айтема
+    let settings_item = MenuItem::with_id(app, "settings", "Settings", true, None::<&str>)?;
+    let quit_item = MenuItem::with_id(app, "quit", "Quit", true, None::<&str>)?;
+    // и создаем само меню
+    let menu = Menu::with_items(app, &[&settings_item, &quit_item])?;
+
+    // зашиваем PNG в бинарник на этапе компиляции (include_bytes!) — не
+    // зависим от путей на диске у собранного .app, работает одинаково
+    // и в tauri dev, и в финальной сборке.
+    // TODO: изучить подробнее темку
+    let tray_icon = Image::from_bytes(include_bytes!("../icons/tray-icon.png"))
+        .expect("tray-icon.png должен быть валидным PNG");
+
+    // создает иконку из темплейта:
+    TrayIconBuilder::new()
+        // сначала добавим саму картинку - .icon
+        // потом включаем особую функцию для macos - перезаливка белым/черным в зависимости от фона - .icon_as_template
+        // в меню нужна ссылка на menu - .menu
+        // дальше пишем обработчики, .on_menu_event
+        // .build завершает цепочку и регает в систему эту менюшку.
+        .icon(tray_icon)
+        .icon_as_template(true)
+        .menu(&menu)
+        .on_menu_event(|app, event| match event.id.as_ref() {
+            // берем хэндл app и event, в котором есть id айтема, вот его и достаем как &str (.as_ref), чтобы работать
+            // нормально со строковыми литералами. потом каждый id расписываем ->
+            "settings" => {
+                println!("settings clicked");
+            }
+            "quit" => app.exit(0),
+            _ => {}
+        })
+        .build(app)?;
+
+    Ok(())
+}
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
@@ -101,6 +146,10 @@ pub fn run() {
 
             #[cfg(target_os = "macos")]
             make_pet_overlay(&window);
+
+            // handle тут - это набор методов оригинального app, только те которые более долгоживущие,
+            // не одноразовые, по типу run, а универсальные, например resize для окна
+            make_tray(app.handle())?;
 
             Ok(())
         })
