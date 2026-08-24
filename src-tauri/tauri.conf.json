@@ -23,6 +23,7 @@
         "hiddenTitle": true,
         "acceptFirstMouse": true,
         "alwaysOnTop": true,
+        "visible": false,
         "visibleOnAllWorkspaces": true,
         "shadow": false,
         "focus": false,

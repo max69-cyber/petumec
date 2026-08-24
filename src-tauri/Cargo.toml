@@ -44,4 +44,4 @@ objc2 = "0.6"
 # каждый класс в цепочке наследования нужно включать отдельной фичей, чтобы он работал
 # (кроме NSObject — он не из objc2-app-kit, а из базового objc2, доступен всегда),
 # поэтому включаем в импорт всю цепочку, кроме NSObject
-objc2-app-kit = { version = "0.3", features = ["NSWindow", "NSPanel", "NSResponder"] }
+objc2-app-kit = { version = "0.3", features = ["NSWindow", "NSPanel", "NSResponder", "NSColor"] }
